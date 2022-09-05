@@ -12,3 +12,8 @@ export const cardActivationSchema = joi.object({
     securityCode: joi.string().length(3).required(),
     password: joi.string().length(4).pattern(/^[0-9]{4}$/).required()
 });
+
+export const cardBlockingSchema = joi.object({
+    id: joi.number().integer().required(),
+    password: joi.string().length(4).pattern(/^[0-9]{4}$/).required()
+});

@@ -1,6 +1,8 @@
 import * as cardRepository from "../repositories/cardRepository";
 import * as companyRepository from "../repositories/companyRepository";
 import * as employeeRepository from "../repositories/employeeRepository";
+import * as rechargeRepository from "../repositories/rechargeRepository";
+import * as paymentRepository from "../repositories/paymentRepository";
 import { faker } from '@faker-js/faker';
 import { Request, Response } from "express";
 import Cryptr from "cryptr";
@@ -107,7 +109,18 @@ export function verifyingIfTheCardIsActivated(password: any) {
         throw ('The informed card has already been activated');
     }
 }
-
+export function verifyingIfTheCardIsBlocked(isBlocked: boolean, condition:string){
+    if(condition==='It has to be unblocked'){
+        if(isBlocked===true){
+            throw('The card is already blocked');
+        }
+    }
+    if(condition==='It has to be blocked'){
+        if(isBlocked===false){
+            throw('The card is already unblocked');
+        }
+    }
+}
 export function comparingSecurityCode(codeFromReq:string,codeFromDataBase:string){
     const cryptr: any = new Cryptr('SECRET_KEY');
     const decryptedCode = cryptr.decrypt(codeFromDataBase);
@@ -131,6 +144,41 @@ export async function blockingCard(id:number){
     await cardRepository.update(id,{isBlocked});
 }
 
+
+export async function gettingBalance(cardId:number){
+
+    const transactions = await paymentRepository.findByCardId(cardId);
+    const recharges = await rechargeRepository.findByCardId(cardId);
+    const balance = calculatingTotal(recharges) - calculatingTotal(transactions);
+    
+    return {
+        balance,
+        transactions,
+        recharges
+    };
+}
+
+export async function checkingPassword(id:number,password:string){
+    const card = await cardRepository.findById(id);
+    if(typeof card.password === 'string'){
+        const isCorrect = bcrypt.compareSync(password,card.password);
+        if(isCorrect===false){
+            throw('Wrong password');
+        }
+        return isCorrect;
+    }else{
+        throw('Unexpected error on getting the password from the database')
+    }
+    
+}
+
+function calculatingTotal(array:any[]){
+    let total = 0;
+    for(let i:number = 0;i<array.length;i++){
+        total+=array[i].amount;
+    }
+    return total;
+}
 //deletar essa função ao finalizar
 
 export function decripting(req: Request, res: Response) {

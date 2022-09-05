@@ -15,9 +15,18 @@ export function errorHandlingMiddleware(error:any, req:Request, res:Response, ne
 
 	if (error === 'The informed CVC is incorrect') return res.status(400).send(error);
 
+	if (error === 'Wrong password') return res.status(400).send(error);
 
+	if (error === 'The informed card has already been activated') return res.status(409).send(error);
+
+	if (error === 'The card is already blocked') return res.status(409).send(error);
+	if (error === 'The card is already unblocked') return res.status(409).send(error);
 	
 	if(error.name) return res.status(400).send('Invalid input data');
+	
+	
+	
+	//if (error === ) return res.status(409).send(error);
 	//if (error === ) return res.status(409).send(error);
 	//if (error === ) return res.status(409).send(error);
 	//if (error === ) return res.status(409).send(error);

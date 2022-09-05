@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { nextTick } from "process";
-import { cardActivationSchema, newCardSchema } from "../schemas/cardsSchemas";
+import { cardActivationSchema, cardBlockingSchema, newCardSchema } from "../schemas/cardsSchemas";
 import { validateSchema } from "./validateSchema";
 
 export function validatingKey(req: Request, res: Response,next:any) {
@@ -19,6 +19,10 @@ export function validatingCardInfos(req: Request, res: Response,next:any) {
 
 export function validatingCardActivationInfos(req: Request, res: Response,next:any) {
     validateSchema(cardActivationSchema);
+    next();
+}
+export function validatingCardBlockingInfos(req: Request, res: Response,next:any) {
+    validateSchema(cardBlockingSchema);
     next();
 }
 
