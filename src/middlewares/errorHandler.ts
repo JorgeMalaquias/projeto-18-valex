@@ -26,9 +26,19 @@ export function errorHandlingMiddleware(error:any, req:Request, res:Response, ne
 	
 	
 	
+	if (error === 'The value of the purchase must be higher than zero') return res.status(400).send(error);
+	
+	
+	if (error === 'The informed card has not been activated yet') return res.status(400).send(error);
+	if (error === 'The card is blocked') return res.status(400).send(error);
+	if (error === 'Business not registered') return res.status(400).send(error);
+	if (error === 'This card is not allowed to be used on this type of business') return res.status(400).send(error);
+	if (error === 'The card does not have credit enough for this purchase') return res.status(400).send(error);
+	if (error === 'The value of the recharge must be higher than zero') return res.status(400).send(error);
 	//if (error === ) return res.status(409).send(error);
 	//if (error === ) return res.status(409).send(error);
 	//if (error === ) return res.status(409).send(error);
 	//if (error === ) return res.status(409).send(error);
+	
 	return res.status(500).send(error);
 }

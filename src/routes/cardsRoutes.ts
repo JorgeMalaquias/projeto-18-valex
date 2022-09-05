@@ -11,6 +11,7 @@ cardsRoutes.get('/cards/:id', gettingBalanceFromCard);//card data visualization
 cardsRoutes.patch('/cards/block', validatingCardBlockingInfos,blocking);//card block
 cardsRoutes.patch('/cards/unblock',validatingCardBlockingInfos, unBlocking);//card unblock
 
+//deletar
 cardsRoutes.get('/cvc/:string',decripting);
 cardsRoutes.get('/test',testing);
 
