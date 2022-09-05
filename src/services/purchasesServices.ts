@@ -30,7 +30,6 @@ export function verifyingIfTheCardIsActivated(password: any) {
 
 export function verifyingIfTheCardExpiration(expirationDate: string) {
     const dates = expirationDate.split('/');
-    console.log(dates);
     if (Number(dates[1]) < Number(dayjs().format('YY'))) {
         throw ('The informed card has already expired');
     }

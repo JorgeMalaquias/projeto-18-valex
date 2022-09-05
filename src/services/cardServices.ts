@@ -96,7 +96,6 @@ export async function verifyingIfTheCardExists(id: number) {
 
 export function verifyingIfTheCardExpiration(expirationDate: string) {
     const dates = expirationDate.split('/');
-    console.log(dates);
     if (Number(dates[1]) < Number(dayjs().format('YY'))) {
         throw ('The informed card has already expired');
     }
@@ -124,8 +123,6 @@ export function verifyingIfTheCardIsBlocked(isBlocked: boolean, condition:string
 export function comparingSecurityCode(codeFromReq:string,codeFromDataBase:string){
     const cryptr: any = new Cryptr('SECRET_KEY');
     const decryptedCode = cryptr.decrypt(codeFromDataBase);
-    console.log(codeFromReq);
-    console.log(codeFromDataBase);
     if(decryptedCode!==codeFromReq){
         throw('The informed CVC is incorrect');
     }
