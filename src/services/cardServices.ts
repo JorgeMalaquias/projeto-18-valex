@@ -1,24 +1,27 @@
-import { findByCardNumber, findByTypeAndEmployeeId } from "../repositories/cardRepository";
-import { findByApiKey } from "../repositories/companyRepository";
-import { findById } from "../repositories/employeeRepository";
+import * as cardRepository from "../repositories/cardRepository";
+import * as companyRepository from "../repositories/companyRepository";
+import * as employeeRepository from "../repositories/employeeRepository";
 import { faker } from '@faker-js/faker';
+import { Request, Response } from "express";
 import Cryptr from "cryptr";
+import bcrypt from 'bcrypt';
+import dayjs from "dayjs";
 import dotenv from "dotenv";
 dotenv.config();
 
 
 export async function validatingDataFromNewCardRequest(apiKey: string, employeeId: number, type: any) {
-    
-    const company = await findByApiKey(apiKey);
-    if (company===undefined) {
+
+    const company = await companyRepository.findByApiKey(apiKey);
+    if (company === undefined) {
         throw ('The apiKey informed does not correspond to any company registered');
     }
-    const employee = await findById(employeeId);
-    if (employee===undefined) {
+    const employee = await employeeRepository.findById(employeeId);
+    if (employee === undefined) {
         throw ('The id informed does not correspond to any employee registered');
     }
-    const currentCard = await findByTypeAndEmployeeId(type, employeeId);
-    if (currentCard!==undefined) {
+    const currentCard = await cardRepository.findByTypeAndEmployeeId(type, employeeId);
+    if (currentCard !== undefined) {
         throw ('The employee informed already has a card with the the type solicited');
     }
     return employee.fullName;
@@ -27,11 +30,11 @@ export async function validatingDataFromNewCardRequest(apiKey: string, employeeI
 
 
 export async function generatingDataToNewCard(fullName: string) {
-    const number:string = await generatingNumberToNewCard();
-    const cardholderName:string  = generatingNameToNewCard(fullName);
-    const expirationDate:string  = generatingExpirationToNewCard();
-    const securityCode:string  = generatingCVCToNewCard();
-    return{
+    const number: string = await generatingNumberToNewCard();
+    const cardholderName: string = generatingNameToNewCard(fullName);
+    const expirationDate: string = generatingExpirationToNewCard();
+    const securityCode: string = generatingCVCToNewCard();
+    return {
         number,
         cardholderName,
         securityCode,
@@ -42,18 +45,18 @@ export async function generatingDataToNewCard(fullName: string) {
 
 
 async function generatingNumberToNewCard() {
-    let currentCard:any= 1;
-    let newCardNumber:string;
+    let currentCard: any = 1;
+    let newCardNumber: string;
     do {
         newCardNumber = faker.random.numeric(16);
-        currentCard = await findByCardNumber(newCardNumber);
-    } while (currentCard!==undefined)
+        currentCard = await cardRepository.findByCardNumber(newCardNumber);
+    } while (currentCard !== undefined)
     return newCardNumber;
 }
 
 function generatingNameToNewCard(fullName: string) {
 
-    const namesFromFullName:string[] = fullName.split(' ');
+    const namesFromFullName: string[] = fullName.split(' ');
 
     let middleNames = '';
     for (let i: number = 1; i < namesFromFullName.length - 2; i++) {
@@ -66,13 +69,75 @@ function generatingNameToNewCard(fullName: string) {
 }
 
 function generatingExpirationToNewCard() {
-    const yearOfExpiration = ('0' + (new Date().getMonth().toString())).slice(-2) + '/' + (new Date().getFullYear() + 5).toString().slice(-2);
-    return yearOfExpiration;
+    const expirationDate = dayjs().format('MM') + '/' + (Number(dayjs().format('YY')) + 5).toString();
+    return expirationDate;
 }
 
 function generatingCVCToNewCard() {
-    const crypt: any = new Cryptr('SECRET_KEY');
+    const cryptr: any = new Cryptr('SECRET_KEY');
     const cvc = faker.random.numeric(3);
-    const encryptedCvc = crypt.encrypt(cvc);
+    const encryptedCvc = cryptr.encrypt(cvc);
     return encryptedCvc;
+}
+
+
+
+
+
+export async function verifyingIfTheCardExists(id: number) {
+    const card = await cardRepository.findById(id);
+    if (card === undefined) {
+        throw ('The id informed does not match with any card registered');
+    }
+    return card;
+}
+
+export function verifyingIfTheCardExpiration(expirationDate: string) {
+    const dates = expirationDate.split('/');
+    console.log(dates);
+    if (Number(dates[1]) < Number(dayjs().format('YY'))) {
+        throw ('The informed card has already expired');
+    }
+    if ((Number(dates[1]) === (Number(dayjs().format('YY')))) && (Number(dates[0]) < (Number(dayjs().format('MM'))))) {
+        throw ('The informed card has already expired');
+    }
+}
+export function verifyingIfTheCardIsActivated(password: any) {
+    if (password) {
+        throw ('The informed card has already been activated');
+    }
+}
+
+export function comparingSecurityCode(codeFromReq:string,codeFromDataBase:string){
+    const cryptr: any = new Cryptr('SECRET_KEY');
+    const decryptedCode = cryptr.decrypt(codeFromDataBase);
+    console.log(codeFromReq);
+    console.log(codeFromDataBase);
+    if(decryptedCode!==codeFromReq){
+        throw('The informed CVC is incorrect');
+    }
+}
+
+export async function creatingPassword(id:number, unHashedpassword:string){
+    const password = bcrypt.hashSync(unHashedpassword,10);
+    await cardRepository.update(id,{password});
+}
+export async function unBlockingCard(id:number){
+    const isBlocked = false;
+    await cardRepository.update(id,{isBlocked});
+}
+export async function blockingCard(id:number){
+    const isBlocked = true;
+    await cardRepository.update(id,{isBlocked});
+}
+
+//deletar essa função ao finalizar
+
+export function decripting(req: Request, res: Response) {
+    const { string } = req.params;
+    const cryptr: any = new Cryptr('SECRET_KEY');
+    const decryptedString = cryptr.decrypt(string);
+    res.send(decryptedString);
+}
+export function testing(req: Request, res: Response) {
 }
