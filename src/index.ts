@@ -14,7 +14,7 @@ server.use(routes);
 server.use(errorHandlingMiddleware);
 
 server.listen(process.env.PORT,()=>{
-    console.log(`Working on ${process.env.PORT}`)
+    console.log(`Server running on port ${process.env.PORT}`)
 })
 
 
