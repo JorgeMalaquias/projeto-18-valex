@@ -6,8 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./src/index.ts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "dependencies": {
@@ -32,7 +31,6 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "nanoid": "^4.0.0",
-    "nodemon": "^2.0.19",
     "pg": "^8.7.3"
   },
   "author": "",
