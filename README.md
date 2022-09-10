@@ -85,12 +85,14 @@ Rota para registro de uma nova compra em algum estabelecimento que aceita um dos
  Ela recebe via body o id do cartão, o id do estabelecimento, o valor da compra, e a senha do cartão como no exemplo
  abaixo:
 
+```
 {
   "cardId": 1,  //tem que ser number
   "businessId": 1,  //tem que ser number
   "amount": 1000,  //tem que ser number
   "password": '2222'  //tem que ser string  e possuir 4 caracteres
 }
+```
 
 <h3>post - '/recharges'</h3>
 Rota para registro de uma nova recarga em algum cartões de benefícios existente, e não expirado.
